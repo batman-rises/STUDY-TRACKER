@@ -3,6 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 const studyRoutes = require("./routes/studyRoutes.js");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 
 const connectDB = require("./config/db.js");
 
@@ -14,6 +15,7 @@ app.use(express.json());
 connectDB();
 
 app.use("/api/study", studyRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 app.get("/", (req, res) => {
   res.json({
