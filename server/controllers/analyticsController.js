@@ -1,6 +1,6 @@
 const StudySession = require("../models/StudySession");
 
-// Helper: fetch only the current user's sessions.
+// Fetch only the current user's sessions.
 const getUserSessions = (userId) => {
   return StudySession.find({ user: userId });
 };
@@ -119,8 +119,87 @@ const getSubjectDistribution = async (req, res) => {
   }
 };
 
+const getStudyStreak = async (req, res) => {
+  try {
+    const sessions = await getUserSessions(req.user._id);
+
+    // Use Indian dates consistently, even if the server runs in UTC.
+    const getDateKey = (date) =>
+      new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date(date));
+
+    // Keep only dates on which the user actually studied.
+    const uniqueDates = [
+      ...new Set(
+        sessions
+          .filter((session) => session.hours > 0)
+          .map((session) => getDateKey(session.date)),
+      ),
+    ].sort();
+
+    const dateSet = new Set(uniqueDates);
+    const today = getDateKey(new Date());
+
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterday = getDateKey(yesterdayDate);
+
+    const studiedToday = dateSet.has(today);
+
+    // If today isn't completed yet, yesterday can still anchor the streak.
+    let currentStreak = 0;
+    let cursor = studiedToday ? today : yesterday;
+
+    while (dateSet.has(cursor)) {
+      currentStreak++;
+
+      const previousDate = new Date(`${cursor}T12:00:00+05:30`);
+      previousDate.setDate(previousDate.getDate() - 1);
+      cursor = getDateKey(previousDate);
+    }
+
+    // Find the longest consecutive run in the user's history.
+    let longestStreak = 0;
+    let runningStreak = 0;
+    let previousDate = null;
+
+    for (const date of uniqueDates) {
+      const currentDate = new Date(`${date}T12:00:00+05:30`);
+
+      const difference = previousDate
+        ? Math.round(
+            (currentDate.getTime() - previousDate.getTime()) /
+              (24 * 60 * 60 * 1000),
+          )
+        : null;
+
+      runningStreak = difference === 1 ? runningStreak + 1 : 1;
+
+      longestStreak = Math.max(longestStreak, runningStreak);
+      previousDate = currentDate;
+    }
+
+    res.status(200).json({
+      currentStreak,
+      longestStreak,
+      studiedToday,
+    });
+  } catch (error) {
+    console.error("Error calculating study streak:", error);
+
+    res.status(500).json({
+      message: "Could not calculate study streak.",
+    });
+  }
+};
+
 module.exports = {
   getSummary,
   getDailyHours,
   getSubjectDistribution,
+  getStudyStreak,
 };
