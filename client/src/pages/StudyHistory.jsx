@@ -16,7 +16,6 @@ const StudyHistory = () => {
     notes: "",
   });
 
-  // Fetch all study sessions.
   const fetchSessions = async () => {
     try {
       setError("");
@@ -34,22 +33,20 @@ const StudyHistory = () => {
     fetchSessions();
   }, []);
 
-  // Open the edit form with the selected session's data.
   const handleEdit = (session) => {
     setEditingId(session._id);
 
     setFormData({
       date: new Date(session.date).toISOString().split("T")[0],
       hours: String(session.hours),
-      subjects: session.subjects.join(", "),
-      topics: session.topics.join(", "),
+      subjects: (session.subjects || []).join(", "),
+      topics: (session.topics || []).join(", "),
       notes: session.notes || "",
     });
 
     setError("");
   };
 
-  // Update form fields as the user types.
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -57,7 +54,6 @@ const StudyHistory = () => {
     });
   };
 
-  // Save the edited session.
   const handleUpdate = async (e) => {
     e.preventDefault();
 
@@ -105,7 +101,6 @@ const StudyHistory = () => {
     }
   };
 
-  // Delete a session after confirmation.
   const handleDelete = async (id) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this study session?",
@@ -117,7 +112,6 @@ const StudyHistory = () => {
       setError("");
       await api.delete(`/study/${id}`);
 
-      // Remove the deleted session from the UI immediately.
       setSessions((currentSessions) =>
         currentSessions.filter((session) => session._id !== id),
       );
@@ -133,73 +127,106 @@ const StudyHistory = () => {
     }
   };
 
+  const inputClass =
+    "w-full rounded-xl border border-[#e6d8cf] bg-white px-4 py-3 text-[#453b35] outline-none transition placeholder:text-[#b5a79e] focus:border-[#cf7897] focus:ring-4 focus:ring-[#f7dce6]/60";
+
+  const labelClass = "mb-2 block text-sm font-semibold text-[#594b43]";
+
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100">
-        <p className="text-slate-500">Loading study history...</p>
+      <div className="flex min-h-screen items-center justify-center bg-[#fbf7f0]">
+        <p className="text-[#887c73]">🌸 Gathering your study memories...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-10">
-      <div className="mx-auto max-w-4xl">
-        {/* Page heading */}
+    <div className="relative min-h-screen overflow-hidden bg-[#fbf7f0] px-4 py-10 sm:py-14">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-[#f7dce6]/50 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-[#dce7d3]/60 blur-3xl"
+      />
+
+      <div className="relative z-10 mx-auto max-w-4xl">
+        {/* Heading */}
         <div className="mb-8">
-          <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
-            Study Tracker
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#f0d4df] bg-[#f9e2e8] text-2xl shadow-sm">
+            🌸
+          </div>
+
+          <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#a94e72]">
+            Your little study garden
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold text-slate-900">
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#453b35] sm:text-4xl">
             Study History
           </h1>
 
-          <p className="mt-2 text-slate-500">
-            Review and manage your study sessions.
+          <p className="mt-2 text-[#887c73]">
+            Look back at how far you've grown, one session at a time.
           </p>
         </div>
 
-        {/* Error message */}
+        {/* Error */}
         {error && (
-          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+          <div
+            role="alert"
+            className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+          >
             {error}
           </div>
         )}
 
         {/* Empty state */}
         {sessions.length === 0 ? (
-          <div className="rounded-2xl bg-white p-10 text-center shadow-sm">
-            <h2 className="text-xl font-semibold text-slate-800">
-              No study sessions yet
+          <div className="rounded-3xl border border-[#eee2d9] bg-[#fffdfa] p-10 text-center shadow-sm">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f9e2e8] text-3xl">
+              🌱
+            </div>
+
+            <h2 className="mt-5 text-xl font-bold text-[#453b35]">
+              Your garden is waiting
             </h2>
 
-            <p className="mt-2 text-slate-500">
-              Start logging your study sessions to see them here.
+            <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-[#887c73]">
+              No study sessions yet. Log your first session and start building a
+              record of your progress.
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {sessions.map((session) => (
               <div
                 key={session._id}
-                className="rounded-2xl bg-white p-6 shadow-sm transition hover:shadow-md"
+                className="rounded-3xl border border-[#eee2d9] bg-[#fffdfa]/95 p-5 shadow-[0_5px_20px_rgba(91,68,55,0.05)] transition hover:shadow-[0_8px_26px_rgba(91,68,55,0.09)] sm:p-7"
               >
                 {editingId === session._id ? (
                   /* Edit form */
                   <form onSubmit={handleUpdate} className="space-y-5">
-                    <h2 className="text-xl font-bold text-slate-900">
-                      Edit Study Session
-                    </h2>
+                    <div className="mb-5 flex items-center gap-3 border-b border-[#eee2d9] pb-4">
+                      <span className="text-2xl">🖊️</span>
+                      <div>
+                        <h2 className="text-xl font-bold text-[#453b35]">
+                          Edit Study Session
+                        </h2>
+                        <p className="text-sm text-[#887c73]">
+                          Update your learning record.
+                        </p>
+                      </div>
+                    </div>
 
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                       <div>
                         <label
                           htmlFor={`date-${session._id}`}
-                          className="mb-2 block text-sm font-semibold text-slate-700"
+                          className={labelClass}
                         >
                           Date
                         </label>
-
                         <input
                           id={`date-${session._id}`}
                           type="date"
@@ -207,18 +234,17 @@ const StudyHistory = () => {
                           value={formData.date}
                           onChange={handleChange}
                           required
-                          className="w-full rounded-lg border border-slate-300 px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                          className={inputClass}
                         />
                       </div>
 
                       <div>
                         <label
                           htmlFor={`hours-${session._id}`}
-                          className="mb-2 block text-sm font-semibold text-slate-700"
+                          className={labelClass}
                         >
-                          Hours Studied
+                          Hours studied
                         </label>
-
                         <input
                           id={`hours-${session._id}`}
                           type="number"
@@ -228,7 +254,7 @@ const StudyHistory = () => {
                           value={formData.hours}
                           onChange={handleChange}
                           required
-                          className="w-full rounded-lg border border-slate-300 px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                          className={inputClass}
                         />
                       </div>
                     </div>
@@ -236,11 +262,10 @@ const StudyHistory = () => {
                     <div>
                       <label
                         htmlFor={`subjects-${session._id}`}
-                        className="mb-2 block text-sm font-semibold text-slate-700"
+                        className={labelClass}
                       >
                         Subjects
                       </label>
-
                       <input
                         id={`subjects-${session._id}`}
                         name="subjects"
@@ -248,18 +273,17 @@ const StudyHistory = () => {
                         onChange={handleChange}
                         placeholder="DSA, AI/ML"
                         required
-                        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        className={inputClass}
                       />
                     </div>
 
                     <div>
                       <label
                         htmlFor={`topics-${session._id}`}
-                        className="mb-2 block text-sm font-semibold text-slate-700"
+                        className={labelClass}
                       >
                         Topics
                       </label>
-
                       <input
                         id={`topics-${session._id}`}
                         name="topics"
@@ -267,25 +291,24 @@ const StudyHistory = () => {
                         onChange={handleChange}
                         placeholder="Arrays, Sliding Window"
                         required
-                        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        className={inputClass}
                       />
                     </div>
 
                     <div>
                       <label
                         htmlFor={`notes-${session._id}`}
-                        className="mb-2 block text-sm font-semibold text-slate-700"
+                        className={labelClass}
                       >
                         Notes
                       </label>
-
                       <textarea
                         id={`notes-${session._id}`}
                         name="notes"
                         value={formData.notes}
                         onChange={handleChange}
-                        rows="3"
-                        className="w-full resize-none rounded-lg border border-slate-300 px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        rows={3}
+                        className={`${inputClass} resize-y`}
                       />
                     </div>
 
@@ -293,7 +316,7 @@ const StudyHistory = () => {
                       <button
                         type="submit"
                         disabled={saving}
-                        className="rounded-lg bg-blue-600 px-5 py-2.5 font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+                        className="rounded-xl bg-[#cf7897] px-5 py-3 font-semibold text-white transition hover:bg-[#b86182] disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {saving ? "Saving..." : "Save Changes"}
                       </button>
@@ -305,7 +328,7 @@ const StudyHistory = () => {
                           setEditingId(null);
                           setError("");
                         }}
-                        className="rounded-lg border border-slate-300 px-5 py-2.5 font-semibold text-slate-700 transition hover:bg-slate-50"
+                        className="rounded-xl border border-[#e6d8cf] px-5 py-3 font-semibold text-[#71665d] transition hover:bg-[#fbf0f3]"
                       >
                         Cancel
                       </button>
@@ -316,7 +339,7 @@ const StudyHistory = () => {
                   <>
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                       <div>
-                        <p className="text-sm font-medium text-blue-600">
+                        <p className="text-sm font-semibold text-[#a94e72]">
                           {new Date(session.date).toLocaleDateString("en-IN", {
                             day: "2-digit",
                             month: "short",
@@ -325,17 +348,17 @@ const StudyHistory = () => {
                           })}
                         </p>
 
-                        <h2 className="mt-1 text-xl font-bold text-slate-900">
+                        <h2 className="mt-1 text-2xl font-bold text-[#453b35]">
                           {session.hours}{" "}
                           {session.hours === 1 ? "hour" : "hours"}
                         </h2>
                       </div>
 
                       <div className="flex flex-wrap gap-2">
-                        {session.subjects.map((subject, index) => (
+                        {(session.subjects || []).map((subject, index) => (
                           <span
                             key={`${subject}-${index}`}
-                            className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700"
+                            className="rounded-full border border-[#f0d4df] bg-[#fbeaf0] px-3 py-1.5 text-sm font-medium text-[#a94e72]"
                           >
                             {subject}
                           </span>
@@ -343,16 +366,16 @@ const StudyHistory = () => {
                       </div>
                     </div>
 
-                    <div className="mt-5">
-                      <p className="mb-2 text-sm font-semibold text-slate-700">
-                        Topics
+                    <div className="mt-6">
+                      <p className="mb-3 text-sm font-bold text-[#594b43]">
+                        Topics explored
                       </p>
 
                       <div className="flex flex-wrap gap-2">
-                        {session.topics.map((topic, index) => (
+                        {(session.topics || []).map((topic, index) => (
                           <span
                             key={`${topic}-${index}`}
-                            className="rounded-md bg-slate-100 px-3 py-1.5 text-sm text-slate-600"
+                            className="rounded-lg border border-[#e3e9dc] bg-[#f1f5ed] px-3 py-2 text-sm text-[#65775c]"
                           >
                             {topic}
                           </span>
@@ -361,33 +384,32 @@ const StudyHistory = () => {
                     </div>
 
                     {session.notes && (
-                      <div className="mt-5 border-t border-slate-100 pt-4">
-                        <p className="text-sm font-semibold text-slate-700">
-                          Notes
+                      <div className="mt-5 rounded-2xl border border-[#eee2d9] bg-[#fcf8f2] p-4">
+                        <p className="text-sm font-bold text-[#594b43]">
+                          A note to remember
                         </p>
-
-                        <p className="mt-1 text-sm leading-6 text-slate-500">
+                        <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#887c73]">
                           {session.notes}
                         </p>
                       </div>
                     )}
 
-                    {/* Edit and Delete actions */}
-                    <div className="mt-5 flex gap-3 border-t border-slate-100 pt-4">
+                    {/* Edit and Delete */}
+                    <div className="mt-6 flex flex-wrap gap-3 border-t border-[#eee2d9] pt-5">
                       <button
                         type="button"
                         onClick={() => handleEdit(session)}
-                        className="rounded-lg bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100"
+                        className="rounded-xl border border-[#e8c4cf] bg-[#fdf1f5] px-4 py-2.5 text-sm font-semibold text-[#a94e72] transition hover:bg-[#f9e2e8]"
                       >
-                        Edit
+                        Edit session
                       </button>
 
                       <button
                         type="button"
                         onClick={() => handleDelete(session._id)}
-                        className="rounded-lg bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+                        className="rounded-xl border border-[#f0d1cc] bg-[#fff3f0] px-4 py-2.5 text-sm font-semibold text-[#b85f55] transition hover:bg-[#ffe6e1]"
                       >
-                        Delete
+                        Delete session
                       </button>
                     </div>
                   </>
@@ -396,6 +418,10 @@ const StudyHistory = () => {
             ))}
           </div>
         )}
+
+        <p className="mt-7 text-center text-sm text-[#9b8d82]">
+          🌿 Every session is another branch in your learning journey.
+        </p>
       </div>
     </div>
   );

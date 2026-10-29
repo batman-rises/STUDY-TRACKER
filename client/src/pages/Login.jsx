@@ -29,32 +29,56 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
-        <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
-          Study Tracker
-        </p>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#fbf7f0] px-4 py-12">
+      {/* Decorative background accents */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-[#f7dce6]/50 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-24 -right-20 h-80 w-80 rounded-full bg-[#dce7d3]/60 blur-3xl"
+      />
 
-        <h1 className="mt-2 text-3xl font-bold text-slate-900">Welcome back</h1>
+      <div className="relative z-20 w-full max-w-md rounded-3xl border border-[#eee2d9] bg-[#fffdfa]/95 p-7 shadow-[0_12px_40px_rgba(91,68,55,0.10)] backdrop-blur-sm sm:p-9">
+        {/* Brand */}
+        <div className="mb-7 flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f9e2e8] text-2xl">
+            🌸
+          </div>
 
-        <p className="mt-2 text-slate-500">
-          Log in to continue tracking your progress.
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#a94e72]">
+              Study Tracker
+            </p>
+            <p className="mt-1 text-xs text-[#887c73]">
+              Your little study garden
+            </p>
+          </div>
+        </div>
+
+        <h1 className="text-3xl font-bold tracking-tight text-[#453b35]">
+          Welcome back
+        </h1>
+
+        <p className="mt-2 leading-relaxed text-[#887c73]">
+          Every little step helps you bloom. Continue your learning journey.
         </p>
 
         {error && (
           <p
             role="alert"
-            className="mt-5 rounded-lg bg-red-50 p-3 text-sm text-red-600"
+            className="mt-5 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700"
           >
             {error}
           </p>
         )}
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+        <form onSubmit={handleSubmit} className="mt-7 space-y-5">
           <div>
             <label
               htmlFor="email"
-              className="mb-2 block text-sm font-semibold text-slate-700"
+              className="mb-2 block text-sm font-semibold text-[#594b43]"
             >
               Email
             </label>
@@ -66,14 +90,15 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full rounded-lg border border-slate-300 px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              placeholder="you@example.com"
+              className="w-full rounded-xl border border-[#e6d8cf] bg-white px-4 py-3 text-[#453b35] outline-none transition placeholder:text-[#b5a79e] focus:border-[#cf7897] focus:ring-4 focus:ring-[#f7dce6]/70"
             />
           </div>
 
           <div>
             <label
               htmlFor="password"
-              className="mb-2 block text-sm font-semibold text-slate-700"
+              className="mb-2 block text-sm font-semibold text-[#594b43]"
             >
               Password
             </label>
@@ -85,27 +110,43 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full rounded-lg border border-slate-300 px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              placeholder="Enter your password"
+              className="w-full rounded-xl border border-[#e6d8cf] bg-white px-4 py-3 text-[#453b35] outline-none transition placeholder:text-[#b5a79e] focus:border-[#cf7897] focus:ring-4 focus:ring-[#f7dce6]/70"
             />
           </div>
 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+            className="group flex w-full items-center justify-center gap-2 rounded-xl bg-[#cf7897] px-4 py-3.5 font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-[#b86182] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {submitting ? "Logging in..." : "Log In"}
+            {submitting ? "Opening your garden..." : "Log In"}
+            {!submitting && (
+              <span className="transition-transform group-hover:translate-x-1">
+                →
+              </span>
+            )}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-500">
+        <div className="my-6 flex items-center gap-3">
+          <div className="h-px flex-1 bg-[#eee2d9]" />
+          <span className="text-xs text-[#b09f94]">A fresh start awaits</span>
+          <div className="h-px flex-1 bg-[#eee2d9]" />
+        </div>
+
+        <p className="text-center text-sm text-[#887c73]">
           Don't have an account?{" "}
           <Link
             to="/register"
-            className="font-semibold text-blue-600 hover:text-blue-700"
+            className="font-bold text-[#a94e72] underline decoration-[#e8c4cf] underline-offset-4 transition hover:text-[#843c5a]"
           >
             Create one
           </Link>
+        </p>
+
+        <p className="mt-7 text-center text-xs text-[#9b8d82]">
+          🌿 Grow at your own pace.
         </p>
       </div>
     </div>
